@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Date: 2023/2/9
  * Time: 11:57
  * 
@@ -20,12 +20,12 @@ namespace ApiSixUtify
 	class ApiSixClient
 	{
 		public string IPPort;				//Apisix的ip端口
-		public string User;					//Apisix的账号
+		public string User;				//Apisix的账号
 		public string Password;				//Apisix的登陆密码
 		private string _token;				//鉴权Token
 		
-		
-		public void Login()					//登陆，获取Token
+		//登陆，获取Token
+		public void Login()				
 		{
 		
 			string Url=string.Format(@"http://{0}/apisix/admin/user/login",IPPort);
@@ -41,24 +41,24 @@ namespace ApiSixUtify
 			
 			//请求的消息体
 			var jobj = Newtonsoft.Json.Linq.JObject.FromObject(
-                new {
-                    username = User,
-                    password=Password
+                	new {
+                    		username = User,
+                    		password=Password
           
-            });
-            string Body=JsonConvert.SerializeObject(jobj);	
+            		});
+            		string Body=JsonConvert.SerializeObject(jobj);	
 			request.AddParameter("application/json;charset=UTF-8", Body,  ParameterType.RequestBody);
 			IRestResponse response = client.Execute(request);
 
 
-			JObject jobject = (JObject)JsonConvert.DeserializeObject(response.Content);   //Json解析为Jobject，方便取值
+			JObject jobject = (JObject)JsonConvert.DeserializeObject(response.Content);   
 			_token=jobject["data"]["token"].ToString();
 		}
 		
 		
 		
-		
-		public List<RouteInfo> GetRoute()				//获取路由
+		//获取路由
+		public List<RouteInfo> GetRoute()				
 		{
 			string Url=string.Format(@"http://{0}/apisix/admin/routes?label=&page=1&page_size=100",IPPort);
 			var client = new RestClient(Url);
@@ -118,7 +118,7 @@ namespace ApiSixUtify
 		//导出路由
 		public void ExportRoute(List<string> Routes)
 		{
-			string RouteIDS=string.Join(",",Routes);				//逗号相连
+			string RouteIDS=string.Join(",",Routes);				
 			string Url=string.Format(@"http://{0}/apisix/admin/export/routes/{1}",IPPort,RouteIDS);
 			var client = new RestClient(Url);
 			client.Timeout = -1;
@@ -131,8 +131,8 @@ namespace ApiSixUtify
 			//Console.WriteLine(response.Content);
 			
 			string HttpResult=response.Content;
-			JObject jobject = (JObject)JsonConvert.DeserializeObject(HttpResult);   //Json解析为Jobject，方便取值
-			string result = jobject["data"].ToString(); //取节点的值
+			JObject jobject = (JObject)JsonConvert.DeserializeObject(HttpResult);  
+			string result = jobject["data"].ToString();
 			
 			string ExportFilePath=System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop)+"\\"+"APISIX_routes_"+IPPort.Split(':')[0]+"_"+DateTime.Now.ToString("yyyyMMddHHmmss")+".json";
 			System.IO.File.WriteAllText(ExportFilePath,result);
@@ -155,15 +155,8 @@ namespace ApiSixUtify
 			client.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
 			request.AddFile("file", ConfigFile);
 			IRestResponse response = client.Execute(request);
-			
-	
-		
+
 		}
-		
-		
-		
-		
-	
 	}
 	
 	
